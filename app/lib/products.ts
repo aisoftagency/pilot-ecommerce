@@ -1,42 +1,47 @@
 export type Product = {
-  id: string;
+  id: number;
   name: string;
+  slug: string;
   price: number;
   imageUrl: string;
   description?: string;
 };
 
-export const products: Product[] = [
-  {
-    id: '1',
-    name: 'Laptop',
-    price: 90,
-    imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853',
-    description: "This is a very good laptop, please buy it asap"
-  },
-  {
-    id: '2',
-    name: 'Phone',
-    price: 90,
-    imageUrl: 'https://images.unsplash.com/photo-1490222939321-2a267366a124',
-    description: "This is a very good phone, please buy it asap"
-  },
-  {
-    id: '3',
-    name: 'Pen',
-    price: 90,
-    imageUrl: 'https://images.unsplash.com/photo-1455390582262-044cdead277a',
-    description: "This is a very good pen, please buy it asap"
-  },
-  {
-    id: '4',
-    name: 'Pencil',
-    price: 90,
-    imageUrl: 'https://plus.unsplash.com/premium_photo-1670958553973-58e2ef388f91',
-    description: "This is a very good pencil, please buy it asap"
+// Fetch products from API
+export async function getProducts(): Promise<Product[]> {
+  try {
+    const response = await fetch('/api/products', {
+      cache: 'no-store' // Always fetch fresh data
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch products');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return [];
   }
-]
+}
 
-export function getProductById(id: string) {
-  return products.find(prod => prod.id == id)
+// Get product by ID (for individual product pages)
+export async function getProductById(id: string): Promise<Product | undefined> {
+  try {
+    const response = await fetch(`/api/products/${id}`, {
+      cache: 'no-store' // Always fetch fresh data
+    });
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return undefined;
+      }
+      throw new Error('Failed to fetch product');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    return undefined;
+  }
 }
